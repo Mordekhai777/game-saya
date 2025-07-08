@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Cocokkan Nama dengan Gambar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+        
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #c2e9fb 0%, #a1c4fd 100%);
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.3);
+        }
+        
+        .name-tag {
+            background-color: #FFF9C4;
+            border: 3px solid #FFD54F;
+            border-radius: 10px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            cursor: move;
+            user-select: none;
+            transition: all 0.2s ease;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin: 8px;
+            min-width: 100px;
+        }
+        
+        .name-tag:hover {
+            transform: scale(1.05);
+        }
+        
+        .name-tag.dragging {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+        
+        .drop-zone {
+            border: 3px dashed #9575CD;
+            border-radius: 10px;
+            min-height: 60px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            padding: 10px;
+        }
+        
+        .drop-zone.highlight {
+            background-color: rgba(149, 117, 205, 0.2);
+            border-color: #673AB7;
+        }
+        
+        .correct {
+            background-color: #DCEDC8;
+            border-color: #8BC34A;
+        }
+        
+        .incorrect {
+            background-color: #FFCDD2;
+            border-color: #F44336;
+        }
+        
+        .emoji {
+            font-size: 70px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 640px) {
+            .emoji {
+                font-size: 50px;
+            }
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .bounce {
+            animation: bounce 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+        }
+        
+        .instructions {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 3px solid #FF9800;
+        }
+        
+        .btn {
+            background-color: #FF9800;
+            color: white;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .btn:hover {
+            background-color: #F57C00;
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .tab {
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 640px) {
+            .tab {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+        
+        .tab.active {
+            background-color: white;
+            box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tab:not(.active) {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .tab:not(.active):hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #E0E0E0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #FF9800, #FF5722);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .cloud {
+            position: absolute;
+            opacity: 0.8;
+            z-index: -1;
+        }
+        
+        /* Tambahan untuk mobile */
+        .mobile-friendly-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .names-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+        
+        @media (min-width: 640px) {
+            .names-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .tap-to-select {
+            margin-top: 20px;
+            background-color: #E1BEE7;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: #6A1B9A;
+        }
+        
+        .selected-name {
+            background-color: #CE93D8;
+            border-color: #8E24AA;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <!-- Clouds Background -->
+    <div class="cloud" style="top: 10%; left: 5%; font-size: 60px;">☁️</div>
+    <div class="cloud" style="top: 30%; right: 10%; font-size: 80px;">☁️</div>
+    <div class="cloud" style="bottom: 20%; left: 15%; font-size: 70px;">☁️</div>
+    <div class="cloud" style="bottom: 40%; right: 20%; font-size: 50px;">☁️</div>
+
+    <div class="container mx-auto max-w-6xl">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl font-bold text-purple-800 mb-2">Game Cocokkan Nama dengan Gambar</h1>
+            <div class="flex justify-center space-x-4">
+                <div class="floating" style="animation-delay: 0s;">🍎</div>
+                <div class="floating" style="animation-delay: 0.5s;">🐶</div>
+                <div class="floating" style="animation-delay: 1s;">🍇</div>
+                <div class="floating" style="animation-delay: 1.5s;">🙊</div>
+                <div class="floating" style="animation-delay: 2s;">🚗</div>
+                <div class="floating" style="animation-delay: 2.5s;">🍌</div>
+            </div>
+        </header>
+
+        <div class="instructions flex items-center p-4">
+            <div class="text-2xl mr-4">🎮</div>
+            <div>
+                <h2 class="text-xl font-bold text-purple-800">Cara Bermain:</h2>
+                <p class="text-lg">Pilih nama lalu tekan gambar yang sesuai untuk mencocokkan!</p>
+            </div>
+        </div>
+
+        <div class="flex justify-center mb-6">
+            <div class="tab active" id="tab-hewan" onclick="switchTab('hewan')">Hewan 🐶</div>
+            <div class="tab" id="tab-buah" onclick="switchTab('buah')">Buah 🍎</div>
+            <div class="tab" id="tab-kendaraan" onclick="switchTab('kendaraan')">Kendaraan 🚗</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress-bar" style="width: 0%"></div>
+        </div>
+
+        <div id="game-container" class="mobile-friendly-container">
+            <div class="tap-to-select">Pilih nama terlebih dahulu, lalu tekan gambar yang sesuai</div>
+            
+            <div class="mt-4 bg-white p-4 rounded-xl shadow-lg w-full">
+                <h2 class="text-xl font-bold text-purple-800 mb-4 text-center">Pilih Nama:</h2>
+                <div id="names-container" class="names-grid">
+                    <!-- Names will be generated here -->
+                </div>
+            </div>
+            
+            <div class="mt-6 w-full">
+                <div id="hewan-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Hewan cards will be generated here -->
+                </div>
+
+                <div id="buah-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 hidden">
+                    <!-- Buah cards will be generated here -->
+                </div>
+                
+                <div id="kendaraan-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 hidden">
+                    <!-- Kendaraan cards will be generated here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="result-container" class="mt-8 text-center hidden">
+            <div class="card p-6">
+                <h2 class="text-2xl font-bold text-purple-800 mb-4">Selamat! 🎉</h2>
+                <p class="text-xl mb-4">Kamu berhasil mencocokkan semua nama dengan benar!</p>
+                <div class="flex justify-center space-x-4 text-5xl mb-6">
+                    <div class="floating" style="animation-delay: 0s;">🎉</div>
+                    <div class="floating" style="animation-delay: 0.5s;">🏆</div>
+                    <div class="floating" style="animation-delay: 1s;">⭐</div>
+                    <div class="floating" style="animation-delay: 1.5s;">🎊</div>
+                </div>
+                <button class="btn" onclick="resetGame()">Main Lagi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data untuk game
+        const hewanData = [
+            { name: "Anjing", emoji: "🐶" },
+            { name: "Kucing", emoji: "🐱" },
+            { name: "Monyet", emoji: "🙊" },
+            { name: "Kelinci", emoji: "🐰" },
+            { name: "Sapi", emoji: "🐮" },
+            { name: "Ayam", emoji: "🐔" },
+            { name: "Gajah", emoji: "🐘" },
+            { name: "Kuda", emoji: "🐴" }
+        ];
+
+        const buahData = [
+            { name: "Apel", emoji: "🍎" },
+            { name: "Anggur", emoji: "🍇" },
+            { name: "Pisang", emoji: "🍌" },
+            { name: "Jeruk", emoji: "🍊" },
+            { name: "Semangka", emoji: "🍉" },
+            { name: "Stroberi", emoji: "🍓" },
+            { name: "Ceri", emoji: "🍒" },
+            { name: "Nanas", emoji: "🍍" }
+        ];
+        
+        const kendaraanData = [
+            { name: "Mobil", emoji: "🚗" },
+            { name: "Sepeda", emoji: "🚲" },
+            { name: "Pesawat", emoji: "✈️" },
+            { name: "Kapal", emoji: "🚢" },
+            { name: "Bus", emoji: "🚌" },
+            { name: "Kereta", emoji: "🚂" },
+            { name: "Ambulans", emoji: "🚑" },
+            { name: "Helikopter", emoji: "🚁" }
+        ];
+
+        let currentCategory = 'hewan';
+        let correctMatches = 0;
+        let totalItems = hewanData.length;
+        let selectedName = null;
+
+        // Inisialisasi game
+        function initGame() {
+            generateCards('hewan', hewanData);
+            generateCards('buah', buahData);
+            generateCards('kendaraan', kendaraanData);
+            generateNames(currentCategory, hewanData);
+            updateProgressBar();
+        }
+
+        // Generate kartu untuk kategori tertentu
+        function generateCards(category, data) {
+            const container = document.getElementById(`${category}-container`);
+            container.innerHTML = '';
+            
+            // Acak urutan data
+            const shuffledData = [...data].sort(() => Math.random() - 0.5);
+            
+            // Buat kartu untuk setiap item
+            shuffledData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'card p-4 flex flex-col items-center';
+                card.setAttribute('data-name', item.name);
+                card.onclick = function() { checkMatch(this); };
+                
+                let cardContent = `
+                    <div class="emoji mb-2">${item.emoji}</div>
+                    <div class="drop-zone w-full" data-correct="${item.name}"></div>
+                `;
+                
+                card.innerHTML = cardContent;
+                container.appendChild(card);
+            });
+        }
+
+        // Generate nama-nama untuk kategori tertentu
+        function generateNames(category, data) {
+            const namesContainer = document.getElementById('names-container');
+            namesContainer.innerHTML = '';
+            
+            // Acak urutan nama
+            const shuffledNames = [...data].sort(() => Math.random() - 0.5);
+            
+            // Buat tag nama untuk setiap item
+            shuffledNames.forEach(item => {
+                const nameTag = document.createElement('div');
+                nameTag.className = 'name-tag';
+                nameTag.textContent = item.name;
+                nameTag.setAttribute('data-name', item.name);
+                nameTag.onclick = function() { selectName(this); };
+                namesContainer.appendChild(nameTag);
+            });
+        }
+
+        // Fungsi untuk memilih nama
+        function selectName(element) {
+            // Hapus seleksi sebelumnya
+            const allNames = document.querySelectorAll('.name-tag');
+            allNames.forEach(name => name.classList.remove('selected-name'));
+            
+            // Pilih nama baru
+            element.classList.add('selected-name');
+            selectedName = element.getAttribute('data-name');
+        }
+
+        // Fungsi untuk memeriksa kecocokan
+        function checkMatch(cardElement) {
+            if (!selectedName) {
+                // Jika belum ada nama yang dipilih, tampilkan pesan
+                const tapToSelect = document.querySelector('.tap-to-select');
+                tapToSelect.style.backgroundColor = '#FFCDD2';
+                tapToSelect.style.color = '#B71C1C';
+                tapToSelect.textContent = 'Pilih nama terlebih dahulu!';
+                
+                setTimeout(() => {
+                    tapToSelect.style.backgroundColor = '#E1BEE7';
+                    tapToSelect.style.color = '#6A1B9A';
+                    tapToSelect.textContent = 'Pilih nama terlebih dahulu, lalu tekan gambar yang sesuai';
+                }, 1500);
+                
+                return;
+            }
+            
+            const dropZone = cardElement.querySelector('.drop-zone');
+            const correctName = dropZone.getAttribute('data-correct');
+            
+            if (selectedName === correctName) {
+                // Jawaban benar
+                dropZone.classList.add('correct');
+                dropZone.classList.remove('incorrect');
+                
+                // Animasi bounce pada emoji
+                const emojiElement = cardElement.querySelector('.emoji');
+                emojiElement.classList.add('bounce');
+                setTimeout(() => {
+                    emojiElement.classList.remove('bounce');
+                }, 500);
+                
+                // Tambah jumlah jawaban benar
+                if (!dropZone.hasAttribute('data-matched')) {
+                    correctMatches++;
+                    dropZone.setAttribute('data-matched', 'true');
+                }
+                
+                // Pindahkan nama ke drop zone
+                dropZone.innerHTML = '';
+                const nameElement = document.querySelector(`.name-tag.selected-name`);
+                if (nameElement) {
+                    const clonedName = nameElement.cloneNode(true);
+                    clonedName.classList.remove('selected-name');
+                    clonedName.onclick = null;
+                    dropZone.appendChild(clonedName);
+                    nameElement.remove();
+                }
+                
+                // Reset selected name
+                selectedName = null;
+            } else {
+                // Jawaban salah
+                dropZone.classList.add('incorrect');
+                setTimeout(() => {
+                    dropZone.classList.remove('incorrect');
+                }, 800);
+                
+                // Animasi shake pada card
+                cardElement.animate(
+                    [
+                        { transform: 'translateX(0)' },
+                        { transform: 'translateX(-10px)' },
+                        { transform: 'translateX(10px)' },
+                        { transform: 'translateX(-10px)' },
+                        { transform: 'translateX(0)' }
+                    ],
+                    {
+                        duration: 500,
+                        easing: 'ease-in-out'
+                    }
+                );
+            }
+            
+            // Update progress bar
+            updateProgressBar();
+            
+            // Cek apakah semua sudah dicocokkan dengan benar
+            checkGameCompletion();
+        }
+
+        // Fungsi untuk beralih antara tab
+        function switchTab(category) {
+            // Sembunyikan semua container
+            document.getElementById('hewan-container').classList.add('hidden');
+            document.getElementById('buah-container').classList.add('hidden');
+            document.getElementById('kendaraan-container').classList.add('hidden');
+            
+            // Tampilkan container yang dipilih
+            document.getElementById(`${category}-container`).classList.remove('hidden');
+            
+            // Update tab aktif
+            document.getElementById('tab-hewan').classList.remove('active');
+            document.getElementById('tab-buah').classList.remove('active');
+            document.getElementById('tab-kendaraan').classList.remove('active');
+            document.getElementById(`tab-${category}`).classList.add('active');
+            
+            // Set kategori saat ini
+            currentCategory = category;
+            
+            // Reset progress untuk kategori baru
+            correctMatches = 0;
+            selectedName = null;
+            
+            // Set total items berdasarkan kategori
+            if (category === 'hewan') {
+                totalItems = hewanData.length;
+                generateNames(category, hewanData);
+            } else if (category === 'buah') {
+                totalItems = buahData.length;
+                generateNames(category, buahData);
+            } else {
+                totalItems = kendaraanData.length;
+                generateNames(category, kendaraanData);
+            }
+            
+            // Reset semua drop zone
+            const dropZones = document.querySelectorAll(`#${category}-container .drop-zone`);
+            dropZones.forEach(zone => {
+                zone.innerHTML = '';
+                zone.classList.remove('correct', 'incorrect');
+                zone.removeAttribute('data-matched');
+            });
+            
+            updateProgressBar();
+        }
+
+        // Update progress bar
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progress-bar');
+            const percentage = (correctMatches / totalItems) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        // Cek apakah game sudah selesai
+        function checkGameCompletion() {
+            if (correctMatches === totalItems) {
+                setTimeout(() => {
+                    document.getElementById('game-container').classList.add('hidden');
+                    document.getElementById('result-container').classList.remove('hidden');
+                    createConfetti();
+                }, 1000);
+            }
+        }
+
+        // Buat efek confetti
+        function createConfetti() {
+            const container = document.body;
+            const colors = ['#FF9800', '#E91E63', '#2196F3', '#4CAF50', '#9C27B0', '#00BCD4'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = `-20px`;
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                container.appendChild(confetti);
+                
+                // Animasi jatuh
+                const animation = confetti.animate(
+                    [
+                        { top: '-20px', opacity: 1 },
+                        { top: '100vh', opacity: 0 }
+                    ],
+                    {
+                        duration: Math.random() * 3000 + 2000,
+                        easing: 'cubic-bezier(.215,.61,.355,1)'
+                    }
+                );
+                
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        // Reset game
+        function resetGame() {
+            document.getElementById('game-container').classList.remove('hidden');
+            document.getElementById('result-container').classList.add('hidden');
+            
+            correctMatches = 0;
+            selectedName = null;
+            
+            // Reset game berdasarkan kategori saat ini
+            if (currentCategory === 'hewan') {
+                generateCards('hewan', hewanData);
+                generateNames('hewan', hewanData);
+            } else if (currentCategory === 'buah') {
+                generateCards('buah', buahData);
+                generateNames('buah', buahData);
+            } else {
+                generateCards('kendaraan', kendaraanData);
+                generateNames('kendaraan', kendaraanData);
+            }
+            
+            updateProgressBar();
+        }
+
+        // Inisialisasi game saat halaman dimuat
+        window.onload = initGame;
+    </script>
+</body>
+</html>
