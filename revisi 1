@@ -1,0 +1,699 @@
+```html
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        font-family: 'Comic Neue', cursive;
+        background-color: #FFEBF3;
+        background-image: radial-gradient(#FFC0CB 2px, transparent 2px), radial-gradient(#FFC0CB 2px, transparent 2px);
+        background-size: 40px 40px;
+        background-position: 0 0, 20px 20px;
+        overflow-x: hidden;
+        touch-action: manipulation;
+    }
+    
+    .container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 15px;
+    }
+    
+    .title {
+        text-align: center;
+        font-size: 2rem;
+        color: #FF6B9E;
+        text-shadow: 2px 2px 0px #FFD166;
+        margin-bottom: 15px;
+        animation: bounce 2s infinite;
+    }
+    
+    .instructions {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #5762D5;
+        margin-bottom: 20px;
+        background-color: #FFFACD;
+        padding: 12px;
+        border-radius: 15px;
+        border: 3px dashed #FF6B9E;
+    }
+    
+    .tab-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+    
+    .tab {
+        padding: 12px 25px;
+        background-color: #E6F7FF;
+        border: none;
+        border-radius: 15px 15px 0 0;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #5762D5;
+        cursor: pointer;
+        margin: 0 5px;
+        transition: all 0.3s;
+    }
+    
+    .tab.active {
+        background-color: #5762D5;
+        color: white;
+        transform: translateY(-5px);
+    }
+    
+    .game-area {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .section {
+        background-color: #FFFFFF;
+        border-radius: 20px;
+        padding: 15px;
+        box-shadow: 0 8px 0 rgba(0,0,0,0.1);
+        display: none;
+    }
+    
+    .section.active {
+        display: block;
+    }
+    
+    .section-title {
+        text-align: center;
+        font-size: 1.5rem;
+        color: #FF6B9E;
+        margin-bottom: 15px;
+    }
+    
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #F0F8FF;
+        border-radius: 15px;
+        padding: 12px;
+        box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+    
+    .item-image {
+        font-size: 3.5rem;
+        margin-bottom: 8px;
+    }
+    
+    .drop-zone {
+        min-height: 40px;
+        border: 2px dashed #5762D5;
+        border-radius: 10px;
+        margin-top: 8px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: background-color 0.3s;
+        padding: 5px;
+    }
+    
+    .drop-zone.highlight {
+        background-color: #E6F7FF;
+    }
+    
+    .names-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #E6F7FF;
+        border-radius: 15px;
+        border: 3px solid #5762D5;
+    }
+    
+    .name-tag {
+        background-color: #5762D5;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 50px;
+        cursor: move;
+        font-weight: bold;
+        box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+        transition: transform 0.2s;
+        user-select: none;
+        margin: 5px;
+        touch-action: none;
+    }
+    
+    .name-tag:hover {
+        transform: scale(1.05);
+    }
+    
+    .name-tag.dragging {
+        opacity: 0.5;
+    }
+    
+    .success-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #FFFACD;
+        padding: 20px;
+        border-radius: 15px;
+        border: 5px solid #5762D5;
+        text-align: center;
+        z-index: 100;
+        display: none;
+        width: 90%;
+        max-width: 350px;
+    }
+    
+    .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background-color: #f00;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 99;
+    }
+    
+    .reset-button {
+        display: block;
+        margin: 20px auto;
+        background-color: #FF6B9E;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 1.2rem;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 5px 0 #D64C82;
+        transition: transform 0.2s;
+    }
+    
+    .reset-button:hover {
+        transform: translateY(-3px);
+    }
+    
+    .reset-button:active {
+        transform: translateY(2px);
+        box-shadow: 0 3px 0 #D64C82;
+    }
+    
+    .progress-container {
+        width: 100%;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        margin: 15px 0;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        height: 15px;
+        background-color: #5762D5;
+        width: 0%;
+        transition: width 0.5s;
+        border-radius: 10px;
+    }
+    
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-5px); }
+        40%, 80% { transform: translateX(5px); }
+    }
+    
+    .shake {
+        animation: shake 0.5s;
+    }
+    
+    @media (min-width: 768px) {
+        .container {
+            max-width: 800px;
+            padding: 20px;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+        }
+        
+        .instructions {
+            font-size: 1.5rem;
+        }
+        
+        .items-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .item-image {
+            font-size: 4rem;
+        }
+    }
+</style>
+    <div class="tab-container">
+        <button class="tab active" data-tab="animals">Hewan</button>
+        <button class="tab" data-tab="fruits">Buah</button>
+    </div>
+    
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    
+    <div class="game-area">
+        <div class="section active" id="animals-section">
+            <h2 class="section-title">Hewan-hewan</h2>
+            <div class="items-grid" id="animals-grid">
+                <div class="item" data-name="anjing">
+                    <div class="item-image">🐶</div>
+                    <div class="drop-zone" data-correct="anjing"></div>
+                </div>
+                <div class="item" data-name="monyet">
+                    <div class="item-image">🙊</div>
+                    <div class="drop-zone" data-correct="monyet"></div>
+                </div>
+                <div class="item" data-name="sapi">
+                    <div class="item-image">🐮</div>
+                    <div class="drop-zone" data-correct="sapi"></div>
+                </div>
+                <div class="item" data-name="kodok">
+                    <div class="item-image">🐸</div>
+                    <div class="drop-zone" data-correct="kodok"></div>
+                </div>
+                <div class="item" data-name="kucing">
+                    <div class="item-image">🐱</div>
+                    <div class="drop-zone" data-correct="kucing"></div>
+                </div>
+                <div class="item" data-name="kelinci">
+                    <div class="item-image">🐰</div>
+                    <div class="drop-zone" data-correct="kelinci"></div>
+                </div>
+                <div class="item" data-name="ayam">
+                    <div class="item-image">🐔</div>
+                    <div class="drop-zone" data-correct="ayam"></div>
+                </div>
+                <div class="item" data-name="gajah">
+                    <div class="item-image">🐘</div>
+                    <div class="drop-zone" data-correct="gajah"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="fruits-section">
+            <h2 class="section-title">Buah-buahan</h2>
+            <div class="items-grid" id="fruits-grid">
+                <div class="item" data-name="apel">
+                    <div class="item-image">🍎</div>
+                    <div class="drop-zone" data-correct="apel"></div>
+                </div>
+                <div class="item" data-name="anggur">
+                    <div class="item-image">🍇</div>
+                    <div class="drop-zone" data-correct="anggur"></div>
+                </div>
+                <div class="item" data-name="ceri">
+                    <div class="item-image">🍒</div>
+                    <div class="drop-zone" data-correct="ceri"></div>
+                </div>
+                <div class="item" data-name="pisang">
+                    <div class="item-image">🍌</div>
+                    <div class="drop-zone" data-correct="pisang"></div>
+                </div>
+                <div class="item" data-name="jeruk">
+                    <div class="item-image">🍊</div>
+                    <div class="drop-zone" data-correct="jeruk"></div>
+                </div>
+                <div class="item" data-name="stroberi">
+                    <div class="item-image">🍓</div>
+                    <div class="drop-zone" data-correct="stroberi"></div>
+                </div>
+                <div class="item" data-name="semangka">
+                    <div class="item-image">🍉</div>
+                    <div class="drop-zone" data-correct="semangka"></div>
+                </div>
+                <div class="item" data-name="nanas">
+                    <div class="item-image">🍍</div>
+                    <div class="drop-zone" data-correct="nanas"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="names-container" id="names-container">
+            <!-- Names will be added here by JavaScript -->
+        </div>
+        
+        <button class="reset-button" id="reset-button">Mulai Lagi</button>
+    </div>
+</div>
+
+<div class="success-message" id="success-message">
+    <h2 style="font-size: 2rem; color: #5762D5; margin-bottom: 10px;">Hebat! 🎉</h2>
+    <p style="font-size: 1.5rem; color: #FF6B9E;">Kamu berhasil mencocokkan semua dengan benar!</p>
+    <button class="reset-button" style="margin-top: 20px;" onclick="hideSuccessMessage()">Main Lagi</button>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const namesContainer = document.getElementById('names-container');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const resetButton = document.getElementById('reset-button');
+        const successMessage = document.getElementById('success-message');
+        const progressBar = document.getElementById('progress-bar');
+        const tabs = document.querySelectorAll('.tab');
+        const sections = document.querySelectorAll('.section');
+        
+        // List of all names
+        const animalNames = ['anjing', 'monyet', 'sapi', 'kodok', 'kucing', 'kelinci', 'ayam', 'gajah'];
+        const fruitNames = ['apel', 'anggur', 'ceri', 'pisang', 'jeruk', 'stroberi', 'semangka', 'nanas'];
+        let currentNames = [...animalNames]; // Start with animal names
+        let totalMatches = 0;
+        let correctMatches = 0;
+        
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and sections
+                tabs.forEach(t => t.classList.remove('active'));
+                sections.forEach(s => s.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding section
+                tab.classList.add('active');
+                const tabName = tab.dataset.tab;
+                document.getElementById(`${tabName}-section`).classList.add('active');
+                
+                // Update current names based on active tab
+                if (tabName === 'animals') {
+                    currentNames = [...animalNames];
+                } else {
+                    currentNames = [...fruitNames];
+                }
+                
+                // Reset the game for the new tab
+                resetGame();
+            });
+        });
+        
+        // Shuffle names
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Create name tags
+        function createNameTags() {
+            namesContainer.innerHTML = '';
+            const shuffledNames = shuffleArray([...currentNames]);
+            totalMatches = shuffledNames.length;
+            correctMatches = 0;
+            updateProgressBar();
+            
+            shuffledNames.forEach(name => {
+                const nameTag = document.createElement('div');
+                nameTag.className = 'name-tag';
+                nameTag.textContent = name;
+                nameTag.draggable = true;
+                nameTag.dataset.name = name;
+                
+                // Add event listeners for both mouse and touch
+                nameTag.addEventListener('dragstart', dragStart);
+                nameTag.addEventListener('touchstart', touchStart, {passive: false});
+                
+                namesContainer.appendChild(nameTag);
+            });
+        }
+        
+        // Drag and drop functionality for mouse
+        let draggedElement = null;
+        
+        function dragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.dataset.name);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        // Touch functionality for mobile
+        let touchDraggedElement = null;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        function touchStart(e) {
+            e.preventDefault();
+            touchDraggedElement = this;
+            this.classList.add('dragging');
+            
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            
+            // Add touch move and end listeners
+            document.addEventListener('touchmove', touchMove, {passive: false});
+            document.addEventListener('touchend', touchEnd);
+        }
+        
+        function touchMove(e) {
+            e.preventDefault();
+            if (!touchDraggedElement) return;
+            
+            const touch = e.touches[0];
+            const currentX = touch.clientX;
+            const currentY = touch.clientY;
+            
+            // Calculate the new position
+            const deltaX = currentX - touchStartX;
+            const deltaY = currentY - touchStartY;
+            
+            // Move the element
+            touchDraggedElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            touchDraggedElement.style.position = 'relative';
+            touchDraggedElement.style.zIndex = 1000;
+            
+            // Check if over a drop zone
+            const touchLocation = e.touches[0];
+            const elementsAtTouch = document.elementsFromPoint(touchLocation.clientX, touchLocation.clientY);
+            
+            // Remove highlight from all drop zones
+            dropZones.forEach(zone => zone.classList.remove('highlight'));
+            
+            // Highlight the drop zone under the touch point
+            const dropZone = elementsAtTouch.find(el => el.classList.contains('drop-zone'));
+            if (dropZone) {
+                dropZone.classList.add('highlight');
+            }
+        }
+        
+        function touchEnd(e) {
+            if (!touchDraggedElement) return;
+            
+            // Get the element under the touch point
+            const touch = e.changedTouches[0];
+            const elementsAtTouch = document.elementsFromPoint(touch.clientX, touch.clientY);
+            const dropZone = elementsAtTouch.find(el => el.classList.contains('drop-zone'));
+            
+            if (dropZone) {
+                const name = touchDraggedElement.dataset.name;
+                const correctName = dropZone.dataset.correct;
+                
+                handleDrop(dropZone, name, correctName);
+            }
+            
+            // Reset the dragged element
+            touchDraggedElement.style.transform = '';
+            touchDraggedElement.style.position = '';
+            touchDraggedElement.style.zIndex = '';
+            touchDraggedElement.classList.remove('dragging');
+            touchDraggedElement = null;
+            
+            // Remove highlight from all drop zones
+            dropZones.forEach(zone => zone.classList.remove('highlight'));
+            
+            // Remove event listeners
+            document.removeEventListener('touchmove', touchMove);
+            document.removeEventListener('touchend', touchEnd);
+        }
+        
+        // Set up drop zones for mouse events
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                zone.classList.add('highlight');
+            });
+            
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('highlight');
+            });
+            
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('highlight');
+                
+                if (draggedElement) {
+                    const name = draggedElement.dataset.name;
+                    const correctName = zone.dataset.correct;
+                    
+                    handleDrop(zone, name, correctName);
+                    
+                    draggedElement.classList.remove('dragging');
+                    draggedElement = null;
+                }
+            });
+        });
+        
+        // Handle drop for both mouse and touch
+        function handleDrop(zone, name, correctName) {
+            // Check if the drop zone is in the active section
+            const parentSection = zone.closest('.section');
+            if (!parentSection.classList.contains('active')) return;
+            
+            // Check if the drop zone is already filled
+            if (zone.textContent !== '') return;
+            
+            if (name === correctName) {
+                // Correct match
+                zone.textContent = name;
+                zone.style.backgroundColor = '#CAFFBF';
+                zone.style.color = '#2E7D32';
+                zone.style.fontWeight = 'bold';
+                zone.style.border = '2px solid #2E7D32';
+                
+                // Remove the name tag
+                const nameTag = document.querySelector(`.name-tag[data-name="${name}"]`);
+                if (nameTag) nameTag.remove();
+                
+                // Play success sound effect
+                playSuccessSound();
+                
+                // Update progress
+                correctMatches++;
+                updateProgressBar();
+                
+                // Check if all matches are complete
+                checkAllMatches();
+            } else {
+                // Incorrect match - shake effect
+                zone.classList.add('shake');
+                setTimeout(() => {
+                    zone.classList.remove('shake');
+                }, 500);
+                
+                // Play error sound
+                playErrorSound();
+            }
+        }
+        
+        // Update progress bar
+        function updateProgressBar() {
+            const percentage = (correctMatches / totalMatches) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+        
+        // Sound effects
+        function playSuccessSound() {
+            // In a real implementation, you would add sound here
+            console.log("Success sound would play here");
+        }
+        
+        function playErrorSound() {
+            // In a real implementation, you would add sound here
+            console.log("Error sound would play here");
+        }
+        
+        // Check if all matches are complete
+        function checkAllMatches() {
+            const remainingNameTags = document.querySelectorAll('.name-tag');
+            if (remainingNameTags.length === 0) {
+                // All matches complete - show success message
+                setTimeout(() => {
+                    showSuccessMessage();
+                    createConfetti();
+                }, 500);
+            }
+        }
+        
+        // Success message and confetti
+        function showSuccessMessage() {
+            successMessage.style.display = 'block';
+        }
+        
+        window.hideSuccessMessage = function() {
+            successMessage.style.display = 'none';
+            resetGame();
+        };
+        
+        function createConfetti() {
+            const colors = ['#FF6B9E', '#5762D5', '#FFD166', '#06D6A0', '#118AB2'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = -10 + 'px';
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                document.body.appendChild(confetti);
+                
+                const animation = confetti.animate(
+                    [
+                        { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                        { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                    ],
+                    {
+                        duration: Math.random() * 3000 + 2000,
+                        easing: 'cubic-bezier(0.37, 0, 0.63, 1)'
+                    }
+                );
+                
+                animation.onfinish = () => {
+                    confetti.remove();
+                };
+            }
+        }
+        
+        // Reset game
+        function resetGame() {
+            // Get active section
+            const activeSection = document.querySelector('.section.active');
+            const activeDropZones = activeSection.querySelectorAll('.drop-zone');
+            
+            // Clear drop zones in active section
+            activeDropZones.forEach(zone => {
+                zone.textContent = '';
+                zone.style.backgroundColor = '';
+                zone.style.color = '';
+                zone.style.fontWeight = '';
+                zone.style.border = '2px dashed #5762D5';
+            });
+            
+            // Recreate name tags
+            createNameTags();
+        }
+        
+        resetButton.addEventListener('click', resetGame);
+        
+        // Initialize game
+        createNameTags();
+    });
+</script>
